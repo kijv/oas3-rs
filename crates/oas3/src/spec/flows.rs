@@ -101,8 +101,6 @@ impl<'de> Deserialize<'de> for UrlWithRelativeUrlAsFileUrl {
   {
     let str = String::deserialize(deserializer)?;
 
-    println!("{}", str);
-
     Ok(
       UrlWithRelativeUrlAsFileUrl(
         if str.starts_with('/') {
