@@ -151,7 +151,7 @@ pub struct AuthorizationCodeFlow {
     /// The token URL to be used for this flow.
     ///
     /// This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.
-    pub token_url: Url,
+    pub token_url: UrlWithRelativeUrlAsFileUrl,
 
     /// The URL to be used for obtaining refresh tokens.
     ///
