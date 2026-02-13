@@ -1,6 +1,6 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, str::FromStr};
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use url::Url;
 
 use super::spec_extensions;
@@ -92,6 +92,27 @@ pub struct PasswordFlow {
     pub scopes: BTreeMap<String, String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct UrlWithRelativeUrlAsFileUrl(Url);
+
+impl<'de> Deserialize<'de> for UrlWithRelativeUrlAsFileUrl {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where D: Deserializer<'de>
+  {
+    let str = String::deserialize(deserializer)?;
+
+    Ok(
+      UrlWithRelativeUrlAsFileUrl(
+        if str.starts_with('/') {
+          Url::from_file_path(str).unwrap()
+        } else {
+          Url::parse(&str).unwrap()
+        }
+      )
+    )
+  }
+}
+
 /// Configuration details for a client credentials OAuth Flow.
 ///
 /// See <https://spec.openapis.org/oas/v3.1.1#oauth-flow-object>.
@@ -101,7 +122,7 @@ pub struct ClientCredentialsFlow {
     /// The token URL to be used for this flow.
     ///
     /// This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.
-    pub token_url: Url,
+    pub token_url: UrlWithRelativeUrlAsFileUrl,
 
     /// The URL to be used for obtaining refresh tokens.
     ///
